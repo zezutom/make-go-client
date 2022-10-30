@@ -11,23 +11,7 @@ type ListConnectionsResponse struct {
 	Connections []Connection `json:"connections"`
 }
 type ListConnectionsRes struct {
-	Connections []struct {
-		ID           int         `json:"id"`
-		Name         string      `json:"name"`
-		AccountName  string      `json:"accountName"`
-		AccountLabel interface{} `json:"accountLabel"`
-		PackageName  string      `json:"packageName"`
-		Expire       interface{} `json:"expire"`
-		Metadata     interface{} `json:"metadata"`
-		TeamID       int         `json:"teamId"`
-		Theme        string      `json:"theme"`
-		Upgradeable  bool        `json:"upgradeable"`
-		Scopes       int         `json:"scopesCnt"`
-		Scoped       bool        `json:"scoped"`
-		AccountType  string      `json:"accountType"`
-		Editable     bool        `json:"editable"`
-		UID          string      `json:"uid"`
-	} `json:"connections"`
+	Connections []Connection `json:"connections"`
 }
 
 type Connection struct {
@@ -38,10 +22,10 @@ type Connection struct {
 	PackageName  string      `json:"packageName"`
 	Expire       interface{} `json:"expire"`
 	Metadata     interface{} `json:"metadata"`
-	CompanyID    int         `json:"companyId"`
+	TeamID       int         `json:"teamId"`
 	Theme        string      `json:"theme"`
 	Upgradeable  bool        `json:"upgradeable"`
-	Scopes       int         `json:"scopes"`
+	Scopes       int         `json:"scopesCnt"`
 	Scoped       bool        `json:"scoped"`
 	AccountType  string      `json:"accountType"`
 	Editable     bool        `json:"editable"`

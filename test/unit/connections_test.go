@@ -1,20 +1,11 @@
 package unit
 
 import (
-	"bytes"
 	"context"
 	"github.com/stretchr/testify/assert"
 	"go-make/client"
 	"go-make/mock"
-	"go-make/model"
-	"io/ioutil"
-	"net/http"
-	"os"
 	"testing"
-)
-
-var (
-	apiV2 = client.NewClient("TEST_TOKEN", model.EU, &mock.MockClient{}).NewApiV2()
 )
 
 func Test_ListConnections(t *testing.T) {
@@ -33,19 +24,30 @@ func Test_ListConnections(t *testing.T) {
 				"editable": false,
 				"uid": "testuid"
 			}]}`
-	r := ioutil.NopCloser(bytes.NewReader([]byte(json)))
-	mock.GetDoFunc = func(*http.Request) (*http.Response, error) {
-		return &http.Response{
-			StatusCode: 200,
-			Body:       r,
-		}, nil
-	}
-	res, err := apiV2.ListConnections(context.Background(), &client.ListConnectionsRequest{
-		TeamId: os.Getenv("MAKE_TEAM_ID"),
+	res, err := mock.Success(json).ListConnections(context.Background(), &client.ListConnectionsRequest{
+		TeamId: "1",
 	})
 	assert.NotNil(t, res, "expecting non-nil result")
 	assert.Nil(t, err, "expecting nil err")
-	if (res != nil) {
-		assert.GreaterOrEqual(t, len(res.Connections), 1, "expecting at least 1 connection")
-	}
+	assert.Equal(t, len(res.Connections), 1, "expecting 1 connection")
+	assert.Equal(t, client.Connection{
+		ID:           1,
+		Name:         "Test Connection",
+		AccountName:  "google",
+		AccountLabel: "Google",
+		PackageName:  "",
+		Expire:       nil,
+		Metadata:     map[string]interface{}{
+			"type":  "email",
+			"value": "j.doe@gmail.com",
+		},
+		TeamID:      1,
+		Theme:       "#fecd5f",
+		Upgradeable: false,
+		Scopes:      5,
+		Scoped:      true,
+		AccountType: "oauth",
+		Editable:    false,
+		UID:         "testuid",
+}, res.Connections[0], "expecting the connection be equal to the mock connection")
 }
