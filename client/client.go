@@ -7,26 +7,27 @@ import (
 	"fmt"
 	"go-make/model"
 	"net/http"
-	"time"
 )
+
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
 
 type Client struct {
 	BaseURL    string
 	AuthToken  string
 	region     model.Region
-	HTTPClient *http.Client
+	HTTPClient HTTPClient
 }
 
-func NewClient(authToken string, region model.Region) *Client {
+func NewClient(authToken string, region model.Region, httpClient HTTPClient) *Client {
 	// https://www.make.com/en/api-documentation
 
 	return &Client{
 		BaseURL:   fmt.Sprintf("https://%s.make.com/api", toDomain(region)),
 		AuthToken: authToken,
 		region:    region,
-		HTTPClient: &http.Client{
-			Timeout: time.Minute,
-		},
+		HTTPClient: httpClient,
 	}
 }
 
