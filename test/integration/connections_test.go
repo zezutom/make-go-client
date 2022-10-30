@@ -18,7 +18,7 @@ var(
 )
 
 func Test_IT_ListConnections(t *testing.T) {
-	res, err := apiV2.ListConnections(context.Background(), &client.ListConnectionsRequest{
+	res, err := apiV2.ListConnections(context.Background(), &client.ListConnectionsReq{
 		TeamId: os.Getenv("MAKE_TEAM_ID"),
 	})
 	assert.NotNil(t, res, "expecting non-nil result")

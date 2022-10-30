@@ -1,19 +1,30 @@
 package client
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
 )
 
-type ListConnectionsResponse struct {
-	Connections []Connection `json:"connections"`
+type ListConnectionsReq struct {
+	TeamId string   `json:"teamId"`
+	Type   []string `json:"type"`
+	Cols   []string `json:"cols"`
 }
 type ListConnectionsRes struct {
 	Connections []Connection `json:"connections"`
 }
-
+type CreateConnectionReq struct {
+	AccountName string   `json:"accountName"`
+	AccountType string   `json:"accountType"`
+	Scopes      []string `json:"scopes"`
+}
+type CreateConnectionRes struct {
+	Connection Connection `json:"connection"`
+}
 type Connection struct {
 	ID           int         `json:"id"`
 	Name         string      `json:"name"`
@@ -32,17 +43,7 @@ type Connection struct {
 	UID          string      `json:"uid"`
 }
 
-type ListConnectionsRequest struct {
-	TeamId string   `json:"teamId"`
-	Type   []string `json:"type"`
-	Cols   []string `json:"cols"`
-}
-
-type ConnectionList struct {
-	Connections []Connection
-}
-
-func (apiV2 *ApiV2) ListConnections(ctx context.Context, request *ListConnectionsRequest) (*ListConnectionsRes, error) {
+func (apiV2 *ApiV2) ListConnections(ctx context.Context, request *ListConnectionsReq) (*ListConnectionsRes, error) {
 	req, err := http.NewRequest(
 		"GET",
 		fmt.Sprintf("%s/%s/connections?teamId=%s",
@@ -54,6 +55,29 @@ func (apiV2 *ApiV2) ListConnections(ctx context.Context, request *ListConnection
 		return nil, err
 	}
 	res := ListConnectionsRes{}
+	if err := apiV2.Client.SendRequest(ctx, req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (apiV2 *ApiV2) CreateConnection(ctx context.Context, request *CreateConnectionReq) (*CreateConnectionRes, error) {
+	body, err := json.Marshal(request)
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest(
+		"POST",
+		fmt.Sprintf("%s/%s/connections?teamId=%s",
+			apiV2.Client.BaseURL,
+			apiV2.Version,
+			ctx.Value("teamId")),
+		bytes.NewReader(body),
+	)
+	if err != nil {
+		return nil, err
+	}
+	res := CreateConnectionRes{}
 	if err := apiV2.Client.SendRequest(ctx, req, &res); err != nil {
 		return nil, err
 	}

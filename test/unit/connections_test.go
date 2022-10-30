@@ -24,7 +24,7 @@ func Test_ListConnections(t *testing.T) {
 				"editable": false,
 				"uid": "testuid"
 			}]}`
-	res, err := mock.Success(json).ListConnections(context.Background(), &client.ListConnectionsRequest{
+	res, err := mock.Success(json).ListConnections(context.Background(), &client.ListConnectionsReq{
 		TeamId: "1",
 	})
 	assert.NotNil(t, res, "expecting non-nil result")
