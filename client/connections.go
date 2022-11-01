@@ -49,6 +49,10 @@ type Connection struct {
 	UID          string      `json:"uid"`
 }
 
+type ConnectionRes interface {
+	ListConnectionsRes | CreateConnectionRes
+}
+
 func (apiV2 *ApiV2) ListConnections(ctx context.Context, request *ListConnectionsReq) (*ListConnectionsRes, error) {
 	req, err := http.NewRequest(
 		"GET",
@@ -57,14 +61,7 @@ func (apiV2 *ApiV2) ListConnections(ctx context.Context, request *ListConnection
 			apiV2.Version,
 			request.TeamId),
 		nil)
-	if err != nil {
-		return nil, err
-	}
-	res := ListConnectionsRes{}
-	if err := apiV2.Client.SendRequest(ctx, req, &res); err != nil {
-		return nil, err
-	}
-	return &res, nil
+	return execute(ctx, apiV2, req, ListConnectionsRes{}, err)
 }
 
 func (apiV2 *ApiV2) CreateConnection(ctx context.Context, request *CreateConnectionReq) (*CreateConnectionRes, error) {
@@ -80,10 +77,13 @@ func (apiV2 *ApiV2) CreateConnection(ctx context.Context, request *CreateConnect
 			request.TeamId),
 		bytes.NewReader(body),
 	)
+	return execute(ctx, apiV2, req, CreateConnectionRes{}, err)
+}
+
+func execute[T ConnectionRes](ctx context.Context, apiV2 *ApiV2, req *http.Request, res T, err error) (*T, error) {
 	if err != nil {
 		return nil, err
 	}
-	res := CreateConnectionRes{}
 	if err := apiV2.Client.SendRequest(ctx, req, &res); err != nil {
 		return nil, err
 	}
