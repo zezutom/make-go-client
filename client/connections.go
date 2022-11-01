@@ -18,9 +18,15 @@ type ListConnectionsRes struct {
 	Connections []Connection `json:"connections"`
 }
 type CreateConnectionReq struct {
-	AccountName string   `json:"accountName"`
-	AccountType string   `json:"accountType"`
-	Scopes      []string `json:"scopes"`
+	TeamId string `json:"teamId"`
+	Body   CreateConnectionReqBody
+}
+type CreateConnectionReqBody struct {
+	AccountName  string   `json:"accountName"`
+	AccountType  string   `json:"accountType"`
+	Scopes       []string `json:"scopes"`
+	ClientId     string   `json:"clientId"`
+	ClientSecret string   `json:"clientSecret"`
 }
 type CreateConnectionRes struct {
 	Connection Connection `json:"connection"`
@@ -62,7 +68,7 @@ func (apiV2 *ApiV2) ListConnections(ctx context.Context, request *ListConnection
 }
 
 func (apiV2 *ApiV2) CreateConnection(ctx context.Context, request *CreateConnectionReq) (*CreateConnectionRes, error) {
-	body, err := json.Marshal(request)
+	body, err := json.Marshal(request.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +77,7 @@ func (apiV2 *ApiV2) CreateConnection(ctx context.Context, request *CreateConnect
 		fmt.Sprintf("%s/%s/connections?teamId=%s",
 			apiV2.Client.BaseURL,
 			apiV2.Version,
-			ctx.Value("teamId")),
+			request.TeamId),
 		bytes.NewReader(body),
 	)
 	if err != nil {
